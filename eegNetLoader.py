@@ -33,9 +33,8 @@ class eegNet(object):
             self.softmax_layer = tf.nn.softmax(self.dense2)
 
         #Select the best solution
-        # with tf.name_scope("argmax"):
-            # self.argmax_layer = tf.argmax(self.softmax_layer, 3)
-            # img_summary = tf.summary.image('Result image', tf.expand_dims(tf.to_float(self.argmax_layer), 3))
+        #with tf.name_scope("argmax"):
+        #    self.argmax_layer = tf.argmax(self.softmax_layer, 3)
 
         print(("Network build finished: %ds" % (time.time() - start_time)))
 

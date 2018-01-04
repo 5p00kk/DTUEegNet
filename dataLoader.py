@@ -3,7 +3,7 @@ import numpy as np
 
 def loadData():
 	#Load data
-	loadedData = sio.loadmat('.\\bioSig\\dataSet.mat')
+	loadedData = sio.loadmat('.\\data\\dataSet.mat')
 
 	#Define the size of data including channels dimension
 	reshapeSize = (loadedData['channel1'].shape[0],loadedData['channel1'].shape[1],1)

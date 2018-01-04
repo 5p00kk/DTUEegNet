@@ -1,0 +1,4 @@
+Tensorboard/
+.vs/
+__pycache__/
+.py~
