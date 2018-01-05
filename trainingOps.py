@@ -6,9 +6,9 @@ import tensorflow as tf
 import numpy as np
 
 # 1) Define cross entropy loss
-def calcLoss(predictions, labels, num_class):
+def calcLoss(predictions, labels):
     with tf.variable_scope("Loss"):
-        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=reshaped_labels, logits=reshaped_logits)
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=reshaped_labels, logits=predictions)
    	    # Average over batch samples
    	    # Averaging makes the loss invariant to batch size, which is very nice.
         cross_entropy = tf.reduce_mean(cross_entropy)

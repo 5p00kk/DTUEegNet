@@ -14,11 +14,18 @@ tensorboard_path=os.path.join(".\\Tensorboard", timestr)
 print('Start')
 
 dataSet_ph = tf.placeholder(tf.float32, [None, 125, 3])
+labels_ph= tf.placeholder(tf.int32, [None, 1])
+
 model.buildNetwork(dataSet_ph)
 
 # while batch.getEpoch() == 0:
 	# batch_input, batch_label = batch.getTrain(3)
 	# print(batch_label)
+
+# Define the training operations
+lossOp = trainingOps.calcLoss(model.dense2, labels_ph)
+trainOp = trainingOps.trainNetwork(lossOp)
+accOp= trainingOps.calc_accuracy(model.argmax_layer, labels_ph)
 
 print('The end')
 
