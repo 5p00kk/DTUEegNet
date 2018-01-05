@@ -2,3 +2,4 @@ Tensorboard/
 .vs/
 __pycache__/
 .py~
+debug.py

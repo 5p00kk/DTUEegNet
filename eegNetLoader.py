@@ -21,20 +21,33 @@ class eegNet(object):
         
         self.conv3 = self.conv_layer_eeg(self.pool2, "conv3", 60)
         self.pool3 = self.max_pooling_layer_eeg(self.conv3, 3, 'pool3')
+        
+        with tf.variable_scope('flattened'):
+            self.flattened = tf.contrib.layers.flatten(self.pool3)
+            print('flattened shape')
+            print(self.flattened.shape)
 
         with tf.variable_scope('dense1'):
-            self.dense1 = tf.layers.dense(self.pool3, 100, name="dense1")
+            self.dense1 = tf.layers.dense(self.flattened, 100, name="dense1")
+            print('dense1 shape')
+            print(self.dense1.shape)
 
         with tf.variable_scope('dense2'):
             self.dense2 = tf.layers.dense(self.dense1, 2, name="dense2")
+            print('dense2 shape')
+            print(self.dense2.shape)
 
         #Calculate softmax - this might be not used as we use softmax_cross_entropy_with_logits
         with tf.name_scope("softmax"):
             self.softmax_layer = tf.nn.softmax(self.dense2)
+            print('softmax shape')
+            print(self.softmax_layer.shape)
 
-        Select the best solution
+        # Select the best solution
         with tf.name_scope("argmax"):
-           self.argmax_layer = tf.argmax(self.softmax_layer)
+           self.argmax_layer = tf.argmax(self.softmax_layer,1)
+           print('argmax shape')
+           print(self.argmax_layer.shape)
 
         print(("Network build finished: %ds" % (time.time() - start_time)))
 
