@@ -4,10 +4,12 @@ import tensorflow as tf
 class eegNet(object):
     """Builds the model"""
 
-    def buildNetwork(self, netInput):
+    def buildNetwork(self, netInput, phase):
         """
         Build the EegNet
         """
+
+        self.phase = phase
 
         start_time = time.time()
 
@@ -23,12 +25,12 @@ class eegNet(object):
         self.pool3 = self.max_pooling_layer_eeg(self.conv3, 3, 'pool3')
         
         with tf.variable_scope('flattened'):
-            self.flattened = tf.contrib.layers.flatten(self.pool3)
+            self.flattened = tf.contrib.layers.flatten(self.pool1)
             print('flattened shape')
             print(self.flattened.shape)
 
         with tf.variable_scope('dense1'):
-            self.dense1 = tf.layers.dense(self.flattened, 100, name="dense1")
+            self.dense1 = tf.layers.dense(self.flattened, 2, name="dense1", activation = tf.nn.relu, kernel_initializer=tf.contrib.layers.variance_scaling_initializer())
             print('dense1 shape')
             print(self.dense1.shape)
 
@@ -60,9 +62,12 @@ class eegNet(object):
                 kernel_size=3,
                 padding="VALID",
                 use_bias=True,
+                kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
                 bias_initializer=tf.zeros_initializer(),
-                activation=tf.nn.relu,
+                activation=None,
                 name = name)
+
+            conv = tf.nn.relu(self.batch_norm_layer(conv))
         print(name)
         print(conv.shape)
         return conv
@@ -73,3 +78,7 @@ class eegNet(object):
         print(name)
         print(maxpool_layer.shape)
         return maxpool_layer 
+
+    def batch_norm_layer(self, BNinput):
+        #return input
+        return tf.contrib.layers.batch_norm(BNinput, is_training = self.phase)

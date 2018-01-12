@@ -15,8 +15,6 @@ def calcLoss(predictions, labels):
    	    # Average over batch samples
    	    # Averaging makes the loss invariant to batch size, which is very nice.
         cross_entropy = tf.reduce_mean(cross_entropy)
-        #Show cross entropy in tensorboard
-        tf.summary.scalar("Cross_entropy", cross_entropy)
         return cross_entropy
 
 # 2) Define accuracy
@@ -32,16 +30,14 @@ def calcAccuracy(predictions, labels):
         accuracy = num_equal_elements/tf.size(labels_resized)
         labels_size = tf.shape(labels_resized)
         predictions_size = tf.shape(predictions)
-        # Show accuracy in tensor board
-        tf.summary.scalar("Accuracy", accuracy)
         return accuracy
 
 # 3) Define the training op
 def trainNetwork(loss):
     with tf.variable_scope("TrainOp"):
         #Add bn to training ops
-        # update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        # with tf.control_dependencies(update_ops):
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        with tf.control_dependencies(update_ops):
             optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
             # Computing our gradients
             grads_and_vars = optimizer.compute_gradients(loss)
