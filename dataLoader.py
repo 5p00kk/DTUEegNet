@@ -1,9 +1,9 @@
 import scipy.io as sio
 import numpy as np
 
-def loadData():
+def loadData(path):
 	#Load data
-	loadedData = sio.loadmat('.\\data\\dataSetOnlyFeedback.mat')
+	loadedData = sio.loadmat(path)
 
 	#Define the size of data including channels dimension
 	reshapeSize = (loadedData['channel1'].shape[0],loadedData['channel1'].shape[1],1)

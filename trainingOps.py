@@ -9,9 +9,9 @@ import numpy as np
 def calcLoss(predictions, labels):
     with tf.variable_scope("Loss"):
         #One hot labels
-        labels = tf.one_hot(labels, 2)
+        labels_resized = tf.reshape(labels,[tf.size(labels)])
         #Calculate entropy
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
+        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels_resized, logits=predictions)
    	    # Average over batch samples
    	    # Averaging makes the loss invariant to batch size, which is very nice.
         cross_entropy = tf.reduce_mean(cross_entropy)
@@ -38,7 +38,7 @@ def trainNetwork(loss):
         #Add bn to training ops
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):
-            optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+            optimizer = tf.train.AdamOptimizer(learning_rate=0.0001)
             # Computing our gradients
             grads_and_vars = optimizer.compute_gradients(loss)
             # Applying the gradients

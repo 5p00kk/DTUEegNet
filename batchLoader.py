@@ -1,21 +1,20 @@
- import random
+import random
 import numpy as np
 import dataLoader
 
 class batch:
     def __init__(self):
         #Load the data
-        self.dataSet, self.labels = dataLoader.loadData()
+        self.dataSet, self.labels = dataLoader.loadData('.\\data\\trainingData.mat')
+        self.dataSet_valid, self.labels_valid = dataLoader.loadData('.\\data\\testData.mat')
     	
         #Initialize variables
         self.epoch = 0
         self.current_sample=0
-        self.val_size = 200
-        self.train_size = self.dataSet.shape[0]-self.val_size
+        self.train_size = self.dataSet.shape[0]
 
         #Create a list od indices and shuffle them
-        self.train_rand_idx = list(range(0,(self.dataSet.shape[0]-self.val_size)))
-        self.val_idx = list(range((self.dataSet.shape[0]-self.val_size),self.dataSet.shape[0]))
+        self.train_rand_idx = list(range(0,self.train_size))
         random.shuffle(self.train_rand_idx)
 
     def getTrain(self,batch_size):
@@ -43,18 +42,7 @@ class batch:
         return batch_input, batch_labels
 
     def getValidation(self):
-        #Initialize the validation variables
-        val_input = np.zeros((self.val_size, self.dataSet.shape[1], 3))
-        val_labels = np.zeros(self.val_size)
-
-        #Get validation set
-        for i in range(self.val_size):
-            val_input[i] = self.dataSet[self.val_idx[i]]
-            val_labels[i] = self.labels[self.val_idx[i]]
-
-        val_labels = np.resize(val_labels, [self.val_size, 1])
-
-        return val_input, val_labels
+        return self.dataSet_valid, self.labels_valid
 
     def getEpoch(self):
         return self.epoch

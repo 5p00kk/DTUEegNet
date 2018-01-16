@@ -16,7 +16,7 @@ tensorboard_path=os.path.join(".\\Tensorboard", timestr)
 
 print('Start')
 
-dataSet_ph = tf.placeholder(tf.float32, [None, 750, 3])
+dataSet_ph = tf.placeholder(tf.float32, [None, 176, 3])
 labels_ph= tf.placeholder(tf.int32, [None, 1])
 phase_ph = tf.placeholder(tf.bool, name='phase')
 
@@ -27,14 +27,14 @@ model.buildNetwork(dataSet_ph, phase_ph)
 	# print(batch_label)
 
 # Define the training operations
-lossOp = trainingOps.calcLoss(model.dense2, labels_ph)
+lossOp = trainingOps.calcLoss(model.dense3, labels_ph)
 trainOp = trainingOps.trainNetwork(lossOp)
 accOp = trainingOps.calcAccuracy(model.argmax_layer, labels_ph)
 
 print('The end')
 
 init =  tf.global_variables_initializer()
-with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:
+with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.7)))) as sess:
 	sess.run(init)
 	tensorboard_writer = tf.summary.FileWriter(tensorboard_path, sess.graph)
 
@@ -45,27 +45,27 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 	cumulativeTrainLoss = 0
 	cumulativeTrainAcc = 0
 
-	while current_epoch <= 100:
-		batchData, batchLabels = batch.getTrain(5)
+	while current_epoch <= 1000:
+		batchData, batchLabels = batch.getTrain(16)
 		i = i+1
 
 		feed_dict = {dataSet_ph: batchData, labels_ph: batchLabels, phase_ph: 1}
-		fetches_train = [model.argmax_layer, trainOp, lossOp, accOp, model.softmax_layer]
-		result, _ , train_loss, train_acc, sm = sess.run(fetches = fetches_train, feed_dict=feed_dict)
+		fetches_train = [trainOp, lossOp, accOp]
+		_ , train_loss, train_acc = sess.run(fetches = fetches_train, feed_dict=feed_dict)
 
 		cumulativeTrainAcc = cumulativeTrainAcc + train_acc
 		cumulativeTrainLoss = cumulativeTrainLoss + train_loss
 
-		if (i%100)==0:
+		if (i%200)==0:
 			feed_valid = {dataSet_ph: valData, labels_ph: valLabels, phase_ph: 0}
 			fetches_valid = [accOp, lossOp]
 			[validation_acc, validation_loss] = sess.run(fetches = fetches_valid, feed_dict=feed_valid)
 
-			print(i," Train loss",cumulativeTrainLoss/100,"    Train_acc", cumulativeTrainAcc, " Valid loss",validation_loss,"    Valid_acc", validation_acc*100)
-			print("Training pred and label")
-			print(result)
-			print(batchLabels)
-			print(sm)
+			print(i," Train loss",cumulativeTrainLoss/200,"    Train_acc", cumulativeTrainAcc/2, " Valid loss",validation_loss,"    Valid_acc", validation_acc*100)
+			#print("Training pred and label")
+			#print(result)
+			#print(batchLabels)
+			#print(sm)
 			
 			cumulativeTrainLoss = 0
 			cumulativeTrainAcc = 0
