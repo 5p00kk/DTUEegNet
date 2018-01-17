@@ -9,7 +9,6 @@ import scipy.io as sio
 
 model = eegNetLoader.eegNet()
 batch = batchLoader.batch()
-# batch_input, batch_label = batch.getTrain(3)
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
 tensorboard_path=os.path.join(".\\Tensorboard", timestr)
@@ -22,10 +21,6 @@ phase_ph = tf.placeholder(tf.bool, name='phase')
 
 model.buildNetwork(dataSet_ph, phase_ph)
 
-# while batch.getEpoch() == 0:
-	# batch_input, batch_label = batch.getTrain(3)
-	# print(batch_label)
-
 # Define the training operations
 lossOp = trainingOps.calcLoss(model.dense3, labels_ph)
 trainOp = trainingOps.trainNetwork(lossOp)
@@ -34,6 +29,8 @@ accOp = trainingOps.calcAccuracy(model.argmax_layer, labels_ph)
 print('The end')
 
 init =  tf.global_variables_initializer()
+saver = tf.train.Saver(tf.global_variables())
+
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.7)))) as sess:
 	sess.run(init)
 	tensorboard_writer = tf.summary.FileWriter(tensorboard_path, sess.graph)
@@ -63,12 +60,11 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 			[validation_acc, validation_loss] = sess.run(fetches = fetches_valid, feed_dict=feed_valid)
 
 			print(i," Train loss",cumulativeTrainLoss/300,"    Train_acc", cumulativeTrainAcc/3, " Valid loss",validation_loss,"    Valid_acc", validation_acc*100)
-			#print("Training pred and label")
-			#print(result)
-			#print(batchLabels)
-			#print(sm)
+
 			if(validation_acc*100 > maxValAcc):
 				maxValAcc = validation_acc*100
+				save_path = saver.save(sess, "./Models/model.ckpt", global_step = current_epoch)
+                print("Model saved in file: %s" % save_path)
 			
 			cumulativeTrainLoss = 0
 			cumulativeTrainAcc = 0
