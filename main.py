@@ -44,6 +44,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 	valData, valLabels = batch.getValidation()
 	cumulativeTrainLoss = 0
 	cumulativeTrainAcc = 0
+	maxValAcc = 0;
 
 	while current_epoch <= 1000:
 		batchData, batchLabels = batch.getTrain(16)
@@ -56,22 +57,26 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 		cumulativeTrainAcc = cumulativeTrainAcc + train_acc
 		cumulativeTrainLoss = cumulativeTrainLoss + train_loss
 
-		if (i%200)==0:
+		if (i%300)==0:
 			feed_valid = {dataSet_ph: valData, labels_ph: valLabels, phase_ph: 0}
 			fetches_valid = [accOp, lossOp]
 			[validation_acc, validation_loss] = sess.run(fetches = fetches_valid, feed_dict=feed_valid)
 
-			print(i," Train loss",cumulativeTrainLoss/200,"    Train_acc", cumulativeTrainAcc/2, " Valid loss",validation_loss,"    Valid_acc", validation_acc*100)
+			print(i," Train loss",cumulativeTrainLoss/300,"    Train_acc", cumulativeTrainAcc/3, " Valid loss",validation_loss,"    Valid_acc", validation_acc*100)
 			#print("Training pred and label")
 			#print(result)
 			#print(batchLabels)
 			#print(sm)
+			if(validation_acc*100 > maxValAcc):
+				maxValAcc = validation_acc*100
 			
 			cumulativeTrainLoss = 0
 			cumulativeTrainAcc = 0
 
 		if batch.getEpoch() > current_epoch:
 			current_epoch = batch.getEpoch()
+			if (current_epoch%10)==0:
+				print("Max val acc: ", maxValAcc)
 			print("NUMBER EPOCHS: ", current_epoch)
 
 	print("Finished training")

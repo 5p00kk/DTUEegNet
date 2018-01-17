@@ -15,15 +15,15 @@ class eegNet(object):
 
         print("build network started")
 
-        self.conv1 = self.conv_layer_eeg(netInput, "conv1", 16)
+        self.conv1 = self.conv_layer_eeg(netInput, "conv1", 32)
         self.pool1 = self.max_pooling_layer_eeg(self.conv1, 2, 'pool1')
 
-        self.conv2 = self.conv_layer_eeg(self.pool1, "conv2", 32)
+        self.conv2 = self.conv_layer_eeg(self.pool1, "conv2", 64)
         self.pool2 = self.max_pooling_layer_eeg(self.conv2, 2, 'pool2')
         
-        self.conv3 = self.conv_layer_eeg(self.pool2, "conv3", 64)
+        self.conv3 = self.conv_layer_eeg(self.pool2, "conv3", 128)
         self.pool3 = self.max_pooling_layer_eeg(self.conv3, 3, 'pool3')
-        
+
         with tf.variable_scope('flattened'):
             self.flattened = tf.contrib.layers.flatten(self.pool3)
             print('flattened shape')
@@ -35,7 +35,7 @@ class eegNet(object):
             print(self.dense1.shape)
 
         with tf.variable_scope('dropout1'):
-            self.dropout1 = tf.layers.dropout(self.dense1, rate=0.6, training=self.phase)
+            self.dropout1 = tf.layers.dropout(self.dense1, rate=0.50, training=self.phase)
 
         with tf.variable_scope('dense2'):
             self.dense2 = tf.layers.dense(self.dropout1, 25, name="dense1", activation = tf.nn.relu, kernel_initializer=tf.contrib.layers.xavier_initializer())
@@ -43,7 +43,7 @@ class eegNet(object):
             print(self.dense1.shape)
 
         with tf.variable_scope('dropout2'):
-            self.dropout2 = tf.layers.dropout(self.dense2, rate=0.6, training=self.phase)
+            self.dropout2 = tf.layers.dropout(self.dense2, rate=0.50, training=self.phase)
 
         with tf.variable_scope('dense3'):
             self.dense3 = tf.layers.dense(self.dropout2, 2, name="dense2")
@@ -79,6 +79,8 @@ class eegNet(object):
                 name = name)
 
             conv = tf.nn.relu(self.batch_norm_layer(conv))
+            conv = tf.layers.dropout(conv, rate=0.1, training=self.phase)
+
         print(name)
         print(conv.shape)
         return conv
